@@ -21,7 +21,7 @@ function App() {
     if (window.ethereum) {
       try {
         const response = await window.ethereum.request({ method: "eth_requestAccounts" })
-        setAccountInfo(response[0]);
+        await setAccountInfo(response[0]);
       } catch (e) {
         console.log(e)
         Swal.fire({
@@ -39,18 +39,16 @@ function App() {
     }
   };
 
-  const setAccountInfo = (address: string) => {
-    window.ethereum
-      .request({
-        method: "eth_getBalance",
-        params: [address, "latest"]
-      })
-      .then((balance: string) => {
-        setUserData({
-          balance: ethers.utils.formatEther(balance),
-          address
-        });
-      });
+  const setAccountInfo = async (address: string) => {
+    const balance = await window.ethereum.request({
+      method: "eth_getBalance",
+      params: [address, "latest"]
+    });
+
+    setUserData({
+      balance: ethers.utils.formatEther(balance),
+      address
+    });
   };
 
   return (
@@ -58,16 +56,19 @@ function App() {
       <h1 className="AppTitle">MetaMask Wallet</h1>
       <Card>
         <Card.Header>
-          <strong>Address: </strong>
-          {userData.address}
+          <h3>User Info</h3>
         </Card.Header>
         <Card.Body>
+          <Card.Text>
+            <strong>Address: </strong>
+            {userData.address}
+          </Card.Text>
           <Card.Text>
             <strong>Balance: </strong>
             {userData.balance}
           </Card.Text>
           <Button onClick={connectWallet} variant="primary">
-            Connect to wallet
+            {userData.address ? 'Refresh info' : 'Connect to wallet'}
           </Button>
         </Card.Body>
       </Card>
