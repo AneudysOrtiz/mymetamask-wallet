@@ -1,4 +1,4 @@
 export interface UserData {
-    address?: string;
-    balance?: string;
+    address: string;
+    balance: string;
 }

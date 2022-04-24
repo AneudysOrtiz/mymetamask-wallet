@@ -3,6 +3,7 @@ import Swal from 'sweetalert2'
 import { ethers } from "ethers";
 import { Button, Card } from "react-bootstrap";
 import { UserData } from "./models/UserData";
+import { List } from "./components/List/List";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 declare global {
@@ -16,11 +17,13 @@ function App() {
     balance: "",
   });
 
+  const { ethereum } = window;
+
   const connectWallet = async () => {
 
-    if (window.ethereum) {
+    if (ethereum) {
       try {
-        const response = await window.ethereum.request({ method: "eth_requestAccounts" })
+        const response = await ethereum.request({ method: "eth_requestAccounts" })
         await setAccountInfo(response[0]);
       } catch (e) {
         console.log(e)
@@ -40,7 +43,7 @@ function App() {
   };
 
   const setAccountInfo = async (address: string) => {
-    const balance = await window.ethereum.request({
+    const balance = await ethereum.request({
       method: "eth_getBalance",
       params: [address, "latest"]
     });
@@ -72,6 +75,9 @@ function App() {
           </Button>
         </Card.Body>
       </Card>
+
+      {userData.address && <List address={userData.address} />}
+
     </div>
   );
 }
