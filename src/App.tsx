@@ -6,18 +6,22 @@ import { UserData } from "./models/UserData";
 import { List } from "./components/List/List";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import { useApi } from "./hooks/useApi";
+import { TrxForm } from "./components/TrxForm/TrxForm";
+import { TrxFormData } from "./models/TrxFormData";
 declare global {
   interface Window { ethereum: any; }
 }
 
 function App() {
 
+  const { ethereum } = window;
+  const { sendFunds } = useApi();
+  const [showForm, setShowForm] = useState(false);
   const [userData, setUserData] = useState<UserData>({
     address: "",
     balance: "",
   });
-
-  const { ethereum } = window;
 
   const connectWallet = async () => {
 
@@ -25,11 +29,10 @@ function App() {
       try {
         const response = await ethereum.request({ method: "eth_requestAccounts" })
         await setAccountInfo(response[0]);
-      } catch (e) {
-        console.log(e)
+      } catch (e: any) {
         Swal.fire({
           title: 'Error',
-          text: JSON.stringify(e),
+          text: e.message,
           icon: 'error',
         })
       }
@@ -54,6 +57,35 @@ function App() {
     });
   };
 
+  const toggleForm = () => {
+    setShowForm(!showForm);
+  }
+
+  const transferFunds = async (data?: TrxFormData) => {
+    toggleForm();
+    if (!data?.to || !data.value)
+      return;
+
+    try {
+      const trxHash = await sendFunds(data?.to, data.value);
+      Swal.fire({
+        title: 'Success',
+        html: `This is your Trx Hash: 
+        <a href=https://rinkeby.etherscan.io/tx/${trxHash} target='_blank'>
+        ${trxHash}
+        </a>
+        `,
+        icon: 'success',
+      })
+    } catch (e: any) {
+      Swal.fire({
+        title: 'Error',
+        text: e.message,
+        icon: 'error',
+      })
+    }
+  }
+
   return (
     <div className="App">
       <h1 className="AppTitle">MetaMask Wallet</h1>
@@ -71,13 +103,17 @@ function App() {
             {userData.balance}
           </Card.Text>
           <Button onClick={connectWallet} variant="primary">
-            {userData.address ? 'Refresh info' : 'Connect to wallet'}
+            {userData.address ? 'Refresh Info' : 'Connect to wallet'}
+          </Button>
+          <Button disabled={!userData.address} onClick={toggleForm} variant="success" className="SendButton">
+            Send Funds
           </Button>
         </Card.Body>
       </Card>
 
       {userData.address && <List address={userData.address} />}
 
+      <TrxForm show={showForm} onClose={transferFunds} />
     </div>
   );
 }

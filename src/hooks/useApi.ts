@@ -1,4 +1,5 @@
 import axios from "axios";
+import { ethers } from "ethers";
 import { Transaction } from "../models/Transaction";
 
 export const useApi = () => {
@@ -11,5 +12,20 @@ export const useApi = () => {
         return response.data?.result as Transaction[];
     }
 
-    return { getTransactions }
+    const sendFunds = async (to: string, value: string) => {
+
+        const { ethereum } = window;
+        const transactionParameters = {
+            to,
+            from: ethereum.selectedAddress,
+            value: ethers.utils.parseEther(value)._hex,
+        };
+
+        return ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [transactionParameters],
+        });
+    }
+
+    return { getTransactions, sendFunds }
 }

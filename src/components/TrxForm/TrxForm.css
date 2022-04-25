@@ -1,0 +1,8 @@
+.FormButtons {
+    display: flex;
+    justify-content: right;
+}
+
+.FormButtons > Button {
+    margin-left: 10px;
+}

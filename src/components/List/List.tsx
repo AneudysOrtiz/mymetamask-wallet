@@ -32,7 +32,7 @@ export const List = ({ address }: ListProps) => {
             <div className="ListHeader">
                 <h3>Transaction history</h3>
                 <Button onClick={fetchData} size='sm' variant="secondary">
-                    Refresh
+                    Refresh List
                 </Button>
             </div>
 
